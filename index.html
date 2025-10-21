@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitForm AI - Just Do It Right</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.1.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --nike-black: #000000;
+            --nike-white: #ffffff;
+            --nike-orange: #ff6900;
+            --nike-red: #e60012;
+            --nike-gray: #707072;
+            --nike-light-gray: #f5f5f5;
+            --nike-dark-gray: #111111;
+            --success-green: #00d084;
+            --warning-yellow: #ffc72c;
+            --error-red: #ff3333;
+            --primary-gradient: linear-gradient(135deg, #ff6900 0%, #e60012 100%);
+            --success-gradient: linear-gradient(135deg, #00d084 0%, #00a86b 100%);
+            --dark-gradient: linear-gradient(135deg, #000000 0%, #111111 100%);
+            --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --shadow-intense: 0 20px 40px rgba(0, 0, 0, 0.3);
+            --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--nike-black);
+            color: var(--nike-white);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Dynamic background pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(255, 105, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(230, 0, 18, 0.1) 0%, transparent 50%),
+                linear-gradient(45deg, transparent 48%, rgba(255, 255, 255, 0.02) 49%, rgba(255, 255, 255, 0.02) 51%, transparent 52%);
+            background-size: 100% 100%, 100% 100%, 40px 40px;
+            z-index: -1;
+            animation: backgroundShift 20s ease-in-out infinite;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            25% { transform: translateX(-10px) translateY(-5px); }
+            50% { transform: translateX(5px) translateY(-10px); }
+            75% { transform: translateX(-5px) translateY(5px); }
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .brand-logo {
+            font-family: 'Oswald', sans-serif;
+            font-size: 4rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .brand-logo::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: var(--primary-gradient);
+            border-radius: 2px;
+        }
+
+        .tagline {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 300;
+            color: var(--nike-gray);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+
+        .motivational-text {
+            font-size: 1.1rem;
+            color: var(--nike-white);
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 420px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .video-section {
+            background: var(--nike-dark-gray);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--shadow-intense);
+            border: 2px solid rgba(255, 105, 0, 0.2);
+        }
+
+        .section-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--nike-white);
+        }
+
+        .section-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--primary-gradient);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .video-container {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+            border: 3px solid transparent;
+            background-clip: padding-box;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .video-container::before {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            padding: 3px;
+            background: var(--primary-gradient);
+            border-radius: 12px;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            z-index: -1;
+            animation: borderPulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes borderPulse {
+            from { opacity: 0.6; }
+            to { opacity: 1; }
+        }
+
+        #video {
+            width: 100%;
+            height: auto;
+            display: block;
+            transform: scaleX(-1);
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: scaleX(-1);
+        }
+
+        .pose-feedback {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-align: center;
+            z-index: 10;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .pose-feedback.correct {
+            background: linear-gradient(135deg, rgba(0, 208, 132, 0.95) 0%, rgba(0, 168, 107, 0.95) 100%);
+            color: var(--nike-white);
+            box-shadow: 0 0 30px rgba(0, 208, 132, 0.5);
+            animation: successPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes successPulse {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.05); }
+        }
+
+        .pose-feedback.incorrect {
+            background: linear-gradient(135deg, rgba(255, 51, 51, 0.95) 0%, rgba(230, 0, 18, 0.95) 100%);
+            color: var(--nike-white);
+            box-shadow: 0 0 30px rgba(255, 51, 51, 0.5);
+            animation: errorShake 0.5s ease-in-out;
+        }
+
+        @keyframes errorShake {
+            0%, 100% { transform: translateX(-50%); }
+            25% { transform: translateX(-45%); }
+            75% { transform: translateX(-55%); }
+        }
+
+        .pose-feedback.neutral {
+            background: rgba(17, 17, 17, 0.9);
+            color: var(--nike-white);
+            border-color: rgba(255, 105, 0, 0.5);
+        }
+
+        .hand-indicators {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 10;
+        }
+
+        .hand-indicator {
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: rgba(17, 17, 17, 0.8);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: var(--nike-white);
+            transition: var(--transition);
+        }
+
+        .hand-indicator.detected {
+            background: var(--success-gradient);
+            border-color: var(--success-green);
+            box-shadow: 0 0 20px rgba(0, 208, 132, 0.4);
+            transform: scale(1.05);
+        }
+
+        .reference-video-container {
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 25px;
+        }
+
+        .control-panel {
+            background: var(--nike-dark-gray);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: var(--shadow-intense);
+            border: 2px solid rgba(255, 105, 0, 0.2);
+        }
+
+        .exercise-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .exercise-btn {
+            padding: 18px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: var(--nike-white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .exercise-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-gradient);
+            transition: var(--transition);
+            z-index: -1;
+        }
+
+        .exercise-btn:hover {
+            border-color: var(--nike-orange);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .exercise-btn:hover::before {
+            left: 0;
+        }
+
+        .exercise-btn.active {
+            background: var(--primary-gradient);
+            border-color: var(--nike-orange);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .exercise-icon {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .exercise-name {
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .coming-soon-btn {
+            grid-column: 1 / -1;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(112, 112, 114, 0.2) 0%, rgba(17, 17, 17, 0.2) 100%);
+            border: 2px dashed rgba(112, 112, 114, 0.5);
+            border-radius: 12px;
+            text-align: center;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--nike-gray);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .coming-soon-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .stats-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .stats-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            color: var(--nike-white);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stats-container.hidden {
+            display: none;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--nike-gray);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-value {
+            font-family: 'Oswald', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .control-btn {
+            padding: 18px 24px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .control-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transition: var(--transition);
+            transform: translate(-50%, -50%);
+        }
+
+        .control-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        #startBtn {
+            background: var(--success-gradient);
+            color: var(--nike-white);
+            box-shadow: 0 8px 25px rgba(0, 208, 132, 0.3);
+        }
+
+        #startBtn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0, 208, 132, 0.4);
+        }
+
+        #stopBtn {
+            background: linear-gradient(135deg, var(--error-red) 0%, #cc0000 100%);
+            color: var(--nike-white);
+            box-shadow: 0 8px 25px rgba(255, 51, 51, 0.3);
+        }
+
+        #stopBtn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 51, 51, 0.4);
+        }
+
+        button:disabled {
+            background: var(--nike-gray) !important;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .status {
+            text-align: center;
+            padding: 20px 30px;
+            border-radius: 12px;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 500;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 25px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status.loading {
+            background: linear-gradient(135deg, rgba(255, 199, 44, 0.2) 0%, rgba(255, 105, 0, 0.2) 100%);
+            color: var(--warning-yellow);
+            border-color: var(--warning-yellow);
+            animation: loadingPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes loadingPulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.02); opacity: 1; }
+        }
+
+        .status.ready {
+            background: linear-gradient(135deg, rgba(0, 208, 132, 0.2) 0%, rgba(0, 168, 107, 0.2) 100%);
+            color: var(--success-green);
+            border-color: var(--success-green);
+            box-shadow: 0 0 30px rgba(0, 208, 132, 0.2);
+        }
+
+        .status.error {
+            background: linear-gradient(135deg, rgba(255, 51, 51, 0.2) 0%, rgba(230, 0, 18, 0.2) 100%);
+            color: var(--error-red);
+            border-color: var(--error-red);
+            animation: errorShake 0.5s ease-in-out;
+        }
+
+        .feedback-details {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .feedback-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            color: var(--nike-white);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .reps-display {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .feedback-item {
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: var(--transition);
+            border-left: 4px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feedback-item:hover {
+            transform: translateX(5px);
+        }
+
+        .feedback-item.good {
+            background: linear-gradient(135deg, rgba(0, 208, 132, 0.1) 0%, rgba(0, 168, 107, 0.1) 100%);
+            color: var(--success-green);
+            border-left-color: var(--success-green);
+        }
+
+        .feedback-item.bad {
+            background: linear-gradient(135deg, rgba(255, 51, 51, 0.1) 0%, rgba(230, 0, 18, 0.1) 100%);
+            color: var(--error-red);
+            border-left-color: var(--error-red);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-gradient);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #e60012 0%, #ff6900 100%);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-panel {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .brand-logo {
+                font-size: 3rem;
+            }
+            
+            .tagline {
+                font-size: 1.4rem;
+            }
+            
+            .exercise-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-grid {
+                gap: 20px;
+            }
+        }
+
+        /* Loading animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--nike-orange);
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Motivational quotes */
+        .motivation-banner {
+            background: var(--primary-gradient);
+            padding: 15px 30px;
+            border-radius: 25px;
+            text-align: center;
+            margin-bottom: 30px;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: var(--shadow-soft);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="brand-logo">FitForm AI</div>
+            <div class="tagline">Just Do It Right</div>
+            <div class="motivational-text">Perfect your form. Maximize your gains. Unleash your potential.</div>
+        </div>
+
+        <div class="motivation-banner">
+            <i class="fas fa-fire"></i> Train Hard. Form Perfect. Results Guaranteed.
+        </div>
+        
+        <div class="main-grid">
+            <div class="video-section">
+                <div class="section-title">
+                    <div class="section-icon">
+                        <i class="fas fa-play"></i>
+                    </div>
+                    <span>Master The Movement</span>
+                </div>
+                <div class="reference-video-container">
+                    <iframe id="referenceVideo" 
+                            width="100%" 
+                            height="400" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                    </iframe>
+                </div>
+
+                <div class="section-title">
+                    <div class="section-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <span>Live Form Analysis</span>
+                </div>
+                <div class="video-container">
+                    <video id="video" autoplay playsinline muted></video>
+                    <canvas id="canvas"></canvas>
+                    <div id="poseFeedback" class="pose-feedback neutral" style="display: none;">
+                        <i class="fas fa-user"></i> Get Ready
+                    </div>
+                    <div class="hand-indicators">
+                        <div id="leftHandIndicator" class="hand-indicator">
+                            <i class="fas fa-hand-paper"></i> Left Hand
+                        </div>
+                        <div id="rightHandIndicator" class="hand-indicator">
+                            <i class="fas fa-hand-paper"></i> Right Hand
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <div class="section-title">
+                    <div class="section-icon">
+                        <i class="fas fa-dumbbell"></i>
+                    </div>
+                    <span>Choose Your Challenge</span>
+                </div>
+                
+                <div class="exercise-grid">
+                    <button class="exercise-btn active" data-exercise="squat">
+                        <div class="exercise-icon"><i class="fas fa-arrow-down"></i></div>
+                        <div class="exercise-name">Squat</div>
+                    </button>
+                    <button class="exercise-btn" data-exercise="lunge">
+                        <div class="exercise-icon"><i class="fas fa-walking"></i></div>
+                        <div class="exercise-name">Lunge</div>
+                    </button>
+                    <button class="exercise-btn" data-exercise="pushup">
+                        <div class="exercise-icon"><i class="fas fa-hands"></i></div>
+                        <div class="exercise-name">Push-up</div>
+                    </button>
+                    <button class="exercise-btn" data-exercise="plank">
+                        <div class="exercise-icon"><i class="fas fa-minus"></i></div>
+                        <div class="exercise-name">Plank</div>
+                    </button>
+                    <button class="exercise-btn" data-exercise="bicep">
+                        <div class="exercise-icon"><i class="fas fa-dumbbell"></i></div>
+                        <div class="exercise-name">Bicep Curl</div>
+                    </button>
+                    <button class="exercise-btn" data-exercise="burpee">
+                        <div class="exercise-icon"><i class="fas fa-running"></i></div>
+                        <div class="exercise-name">Burpees</div>
+                    </button>
+                    <button class="exercise-btn" data-exercise="pullup">
+                        <div class="exercise-icon"><i class="fas fa-arrow-up"></i></div>
+                        <div class="exercise-name">Pull-ups</div>
+                    </button>
+                    
+                    <div class="coming-soon-btn">
+                        <i class="fas fa-rocket"></i> More Exercises Coming Soon
+                    </div>
+                </div>
+
+                <div class="stats-container" id="generalStatsPanel">
+                    <div class="stats-panel">
+                        <div class="stats-title" id="statsPanelTitle">
+                            <span><i class="fas fa-chart-line"></i> Squat Performance</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><i class="fas fa-repeat"></i> Total Reps</span>
+                            <span class="stat-value" id="totalReps">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><i class="fas fa-check-circle"></i> Perfect Form</span>
+                            <span class="stat-value" id="correctFrames">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><i class="fas fa-times-circle"></i> Form Breaks</span>
+                            <span class="stat-value" id="incorrectFrames">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><i class="fas fa-percentage"></i> Accuracy</span>
+                            <span class="stat-value" id="accuracy">0%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stats-container hidden" id="bicepStatsPanel">
+                    <div class="stats-panel">
+                        <div class="stats-title">
+                            <span><i class="fas fa-dumbbell"></i> Bicep Performance</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><i class="fas fa-hand-point-left"></i> Left Arm</span>
+                            <span class="stat-value" id="leftArmReps">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><i class="fas fa-hand-point-right"></i> Right Arm</span>
+                            <span class="stat-value" id="rightArmReps">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><i class="fas fa-check-circle"></i> Perfect Form</span>
+                            <span class="stat-value" id="bicepCorrectFrames">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><i class="fas fa-times-circle"></i> Form Breaks</span>
+                            <span class="stat-value" id="bicepIncorrectFrames">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><i class="fas fa-percentage"></i> Accuracy</span>
+                            <span class="stat-value" id="bicepAccuracy">0%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button id="startBtn" class="control-btn">
+                        <i class="fas fa-play"></i> Start Training
+                    </button>
+                    <button id="stopBtn" class="control-btn" disabled>
+                        <i class="fas fa-stop"></i> End Session
+                    </button>
+                </div>
+
+                <div class="feedback-details" id="feedbackDetails">
+                    <div class="feedback-title">
+                        <span><i class="fas fa-comments"></i> Form Coach</span>
+                        <span id="exerciseRepsDisplay" class="reps-display"></span>
+                    </div>
+                    <div id="feedbackList"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="status" class="status">
+            <i class="fas fa-rocket"></i> Ready to crush your workout? Hit "Start Training"
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const statusDiv = document.getElementById('status');
+        const poseFeedback = document.getElementById('poseFeedback');
+        const feedbackList = document.getElementById('feedbackList');
+        const exerciseRepsDisplay = document.getElementById('exerciseRepsDisplay');
+        
+        // --- GENERAL STATS ELEMENTS (Squat/Pushup/Burpee/Pullup) ---
+        const generalStatsPanel = document.getElementById('generalStatsPanel'); 
+        const statsPanelTitle = document.getElementById('statsPanelTitle');
+        const totalRepsDiv = document.getElementById('totalReps');
+        const correctFramesDiv = document.getElementById('correctFrames');
+        const incorrectFramesDiv = document.getElementById('incorrectFrames');
+        const accuracyDiv = document.getElementById('accuracy');
+
+        // --- BICEP CURL STATS ELEMENTS ---
+        const bicepStatsPanel = document.getElementById('bicepStatsPanel'); 
+        const leftArmRepsDiv = document.getElementById('leftArmReps');
+        const rightArmRepsDiv = document.getElementById('rightArmReps');
+        const bicepCorrectFramesDiv = document.getElementById('bicepCorrectFrames'); 
+        const bicepIncorrectFramesDiv = document.getElementById('bicepIncorrectFrames'); 
+        const bicepAccuracyDiv = document.getElementById('bicepAccuracy'); 
+        
+        const referenceVideo = document.getElementById('referenceVideo');
+        const leftHandIndicator = document.getElementById('leftHandIndicator');
+        const rightHandIndicator = document.getElementById('rightHandIndicator');
+
+        let poseDetector;
+        let stream;
+        let isRunning = false;
+        let selectedExercise = 'squat';
+        let correctFrames = 0; // Global form correct frames counter
+        let incorrectFrames = 0; // Global form incorrect frames counter
+        let currentPoseState = 'neutral';
+        
+        // Motivational messages
+        const motivationalMessages = {
+            correct: [
+                "PERFECT FORM! 🔥",
+                "CRUSHING IT! 💪",
+                "BEAST MODE! ⚡",
+                "FLAWLESS! 🏆",
+                "UNSTOPPABLE! 🚀"
+            ],
+            incorrect: [
+                "ADJUST & DOMINATE! 💥",
+                "FORM CHECK! 🎯",
+                "REFOCUS! ⚡",
+                "DIAL IT IN! 🔧",
+                "PERFECT IT! 💪"
+            ]
+        };
+
+        function getRandomMessage(type) {
+            const messages = motivationalMessages[type];
+            return messages[Math.floor(Math.random() * messages.length)];
+        }
+        
+        // --- REPETITION COUNTER CLASS (Equivalent to your Python LegCounter/FullBodyCounter) ---
+        class RepCounter {
+            constructor(bufferSize = 5) {
+                this.counter = 0;
+                this.stage = 'up'; 
+                this.angleBuffer = [];
+                this.bufferSize = bufferSize;
+            }
+
+            // angle: current angle; up_threshold: angle for straight/up position; down_threshold: angle for peak-bend/down position
+            update(angle, up_threshold = 160, down_threshold = 90) {
+                this.angleBuffer.push(angle);
+                if (this.angleBuffer.length > this.bufferSize) {
+                    this.angleBuffer.shift();
+                }
+                // Use a simple mean for smoothing
+                const smoothAngle = this.angleBuffer.reduce((a, b) => a + b, 0) / this.angleBuffer.length;
+
+                if (smoothAngle > up_threshold) {
+                    this.stage = "up";
+                }
+                if (smoothAngle < down_threshold && this.stage === 'up') {
+                    this.stage = "down";
+                    this.counter++; // Rep complete!
+                }
+
+                return { smoothAngle, stage: this.stage, count: this.counter };
+            }
+
+            reset() {
+                this.counter = 0;
+                this.stage = 'up';
+                this.angleBuffer = [];
+            }
+        }
+        
+        // --- EXERCISE COUNTER INITIALIZATION ---
+        let squatCounter = new RepCounter(); 
+        let pushupCounter = new RepCounter();
+        let burpeeCounter = new RepCounter();
+        let pullupCounter = new RepCounter();
+        let bicepLeftCounter = new RepCounter(5); 
+        let bicepRightCounter = new RepCounter(5);
+        let lungeLeftCounter = new RepCounter();
+        let lungeRightCounter = new RepCounter();
+
+        // Reference videos for each exercise - YouTube embeds
+        const referenceVideos = {
+            squat: 'https://www.youtube.com/embed/ultWZbUMPL8',
+            plank: 'https://www.youtube.com/embed/ASdvN_XEl_c',
+            pushup: 'https://www.youtube.com/embed/IODxDxX7oi4',
+            lunge: 'https://www.youtube.com/embed/QOVaHwm-Q6U',
+            bicep: 'https://www.youtube.com/embed/ykJmrZ5v0Oo',
+            burpee: 'https://www.youtube.com/embed/Q9aj6N5n_9o',
+            pullup: 'https://www.youtube.com/embed/eGo4ZgJ_wzM'
+        };
+
+        // Load reference video
+        function loadReferenceVideo(exercise) {
+            referenceVideo.src = referenceVideos[exercise] || referenceVideos['squat'];
+        }
+        
+        // Toggle visibility of the stats panels
+        function toggleStatsPanel(exercise) {
+            generalStatsPanel.classList.add('hidden');
+            bicepStatsPanel.classList.add('hidden');
+            
+            if (['squat', 'pushup', 'burpee', 'pullup', 'lunge', 'plank'].includes(exercise)) {
+                generalStatsPanel.classList.remove('hidden');
+                const exerciseName = exercise.charAt(0).toUpperCase() + exercise.slice(1);
+                statsPanelTitle.innerHTML = `<span><i class="fas fa-chart-line"></i> ${exerciseName} Performance</span>`;
+                // Lunge and Plank don't track Reps/Accuracy easily, but use the general panel
+                if (exercise === 'lunge' || exercise === 'plank') {
+                     totalRepsDiv.textContent = '--';
+                     correctFramesDiv.textContent = '--';
+                     incorrectFramesDiv.textContent = '--';
+                     accuracyDiv.textContent = '--';
+                }
+            } else if (exercise === 'bicep') {
+                bicepStatsPanel.classList.remove('hidden');
+            }
+        }
+
+        // Exercise buttons setup
+        const exerciseBtns = document.querySelectorAll('.exercise-btn');
+        exerciseBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (selectedExercise === btn.dataset.exercise) return;
+                
+                exerciseBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedExercise = btn.dataset.exercise;
+                
+                loadReferenceVideo(selectedExercise);
+                resetStats();
+                toggleStatsPanel(selectedExercise); 
+            });
+        });
+
+        loadReferenceVideo('squat');
+        toggleStatsPanel('squat'); 
+
+        function resetStats() {
+            correctFrames = 0;
+            incorrectFrames = 0;
+            currentPoseState = 'neutral';
+            
+            // Reset individual exercise counters
+            squatCounter.reset();
+            pushupCounter.reset();
+            burpeeCounter.reset();
+            pullupCounter.reset();
+            bicepLeftCounter.reset();
+            bicepRightCounter.reset();
+            lungeLeftCounter.reset();
+            lungeRightCounter.reset();
+
+            updateStats();
+        }
+
+        function updateStats() {
+            let totalFrames = correctFrames + incorrectFrames;
+            let acc = totalFrames > 0 ? Math.round((correctFrames / totalFrames) * 100) : 0;
+            let currentReps = 0;
+            let currentStage = 'ready';
+            
+            // Update the general Reps display and get the rep count/stage for the main title
+            switch(selectedExercise) {
+                case 'squat':
+                    currentReps = squatCounter.counter;
+                    currentStage = squatCounter.stage;
+                    totalRepsDiv.textContent = currentReps;
+                    break;
+                case 'pushup':
+                    currentReps = pushupCounter.counter;
+                    currentStage = pushupCounter.stage;
+                    totalRepsDiv.textContent = currentReps;
+                    break;
+                case 'lunge':
+                    currentReps = lungeLeftCounter.counter + lungeRightCounter.counter;
+                    currentStage = lungeLeftCounter.stage !== 'up' ? 'Left: ' + lungeLeftCounter.stage : 'Right: ' + lungeRightCounter.stage;
+                    // Lunge accuracy not tracked for simplicity
+                    correctFramesDiv.textContent = '--';
+                    incorrectFramesDiv.textContent = '--';
+                    accuracyDiv.textContent = '--';
+                    break;
+                case 'bicep':
+                    currentReps = bicepLeftCounter.counter + bicepRightCounter.counter;
+                    leftArmRepsDiv.textContent = bicepLeftCounter.counter;
+                    rightArmRepsDiv.textContent = bicepRightCounter.counter;
+                    
+                    // Bicep uses its own dedicated panel stats
+                    bicepCorrectFramesDiv.textContent = correctFrames;
+                    bicepIncorrectFramesDiv.textContent = incorrectFrames;
+                    bicepAccuracyDiv.textContent = acc + '%';
+                    break;
+                case 'burpee':
+                    currentReps = burpeeCounter.counter;
+                    currentStage = burpeeCounter.stage;
+                    totalRepsDiv.textContent = currentReps;
+                    break;
+                case 'pullup':
+                    currentReps = pullupCounter.counter;
+                    currentStage = pullupCounter.stage;
+                    totalRepsDiv.textContent = currentReps;
+                    break;
+                case 'plank':
+                    currentReps = 0;
+                    currentStage = 'Hold';
+                    correctFramesDiv.textContent = '--';
+                    incorrectFramesDiv.textContent = '--';
+                    accuracyDiv.textContent = '--';
+                    break;
+                default:
+                    currentReps = 0;
+            }
+            
+            // Update general stats panel fields (used by Squat, Pushup, Burpee, Pullup)
+            if (['squat', 'pushup', 'burpee', 'pullup'].includes(selectedExercise)) {
+                correctFramesDiv.textContent = correctFrames;
+                incorrectFramesDiv.textContent = incorrectFrames;
+                accuracyDiv.textContent = acc + '%';
+            }
+
+            // Update the general Reps display in the feedback panel
+            if (selectedExercise === 'plank') {
+                 exerciseRepsDisplay.textContent = `Hold Strong: --`;
+            } else if (selectedExercise === 'lunge' || selectedExercise === 'bicep') {
+                exerciseRepsDisplay.textContent = `Total: ${currentReps} Reps`;
+            } else {
+                exerciseRepsDisplay.textContent = `${currentReps} Reps | ${currentStage.toUpperCase()}`;
+            }
+        }
+
+        function updateStatus(message, type = '') {
+            statusDiv.innerHTML = `<i class="fas fa-rocket"></i> ${message}`;
+            statusDiv.className = `status ${type}`;
+        }
+
+        // Calculate angle between three points 
+        function calculateAngle(a, b, c) {
+            // Note: The JS implementation uses normalized keypoint coordinates from the detector
+            // The Python numpy logic is replaced here with Math.atan2
+            const radians = Math.atan2(c.y - b.y, c.x - c.x) - Math.atan2(a.y - b.y, a.x - a.x);
+            let angle = Math.abs(radians * 180.0 / Math.PI);
+            if (angle > 180.0) {
+                angle = 360 - angle;
+            }
+            return angle;
+        }
+
+        // --- EXERCISE CHECK FUNCTIONS ---
+
+        // Squat: Uses hip-knee-ankle angle 
+        function checkSquatForm(keypoints) {
+            const feedback = [];
+            let isCorrect = true;
+            
+            // Keypoint indices: Hip(11/12), Knee(13/14), Ankle(15/16)
+            const leftHip = keypoints[11];
+            const leftKnee = keypoints[13];
+            const leftAnkle = keypoints[15];
+            
+            if (leftKnee.score > 0.3 && leftHip.score > 0.3 && leftAnkle.score > 0.3) {
+                const kneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+                
+                // Update Rep Counter (UP=160, DOWN=90)
+                const { smoothAngle, stage } = squatCounter.update(kneeAngle, 160, 90);
+
+                // Form check
+                if (smoothAngle > 70 && smoothAngle < 110) {
+                    feedback.push({ text: '🔥 Perfect squat depth', type: 'good' });
+                } else if (stage === 'down' && smoothAngle > 110) {
+                    feedback.push({ text: '⚡ Go deeper for max gains!', type: 'bad' });
+                    isCorrect = false;
+                }
+                
+                // Back angle check (Shoulder-Hip-Knee, indices 5/11/13)
+                const backAngle = calculateAngle(keypoints[5], keypoints[11], keypoints[13]);
+                if (backAngle < 160 || backAngle > 200) {
+                     feedback.push({ text: '💪 Keep that chest proud!', type: 'bad' });
+                     isCorrect = false;
+                } else {
+                     feedback.push({ text: '🏆 Spine alignment on point', type: 'good' });
+                }
+
+                feedback.push({ text: `Knee: ${Math.round(smoothAngle)}° | ${stage.toUpperCase()}`, type: 'good' });
+
+            } else {
+                feedback.push({ text: '🎯 Step into the spotlight!', type: 'bad' });
+                isCorrect = false;
+            }
+            
+            // updateStats() is called inside updateFeedback
+            return { isCorrect, feedback };
+        }
+
+        // Pushup: Tracks elbow bend for reps, hip/body angle for form.
+        function checkPushupForm(keypoints) {
+            const feedback = [];
+            let isCorrect = true;
+
+            // ELBOW ANGLE (Shoulder-Elbow-Wrist: indices 5/7/9 or 6/8/10)
+            const shoulderL = keypoints[5]; const elbowL = keypoints[7]; const wristL = keypoints[9];
+            if (elbowL.score > 0.3 && shoulderL.score > 0.3 && wristL.score > 0.3) {
+                const elbowAngle = calculateAngle(shoulderL, elbowL, wristL);
+                
+                // Update Rep Counter: UP=170 (straight arm), DOWN=80 (bent arm)
+                const { smoothAngle, stage } = pushupCounter.update(elbowAngle, 170, 80);
+
+                if (stage === 'down' && smoothAngle > 110) {
+                    feedback.push({ text: '💥 Push your limits - go lower!', type: 'bad' });
+                    isCorrect = false;
+                } else if (stage === 'down') {
+                    feedback.push({ text: '🔥 Crushing that range of motion!', type: 'good' });
+                }
+
+                feedback.push({ text: `Elbow: ${Math.round(smoothAngle)}° | ${stage.toUpperCase()}`, type: 'good' });
+            }
+
+            // BODY STRAIGHTNESS (Shoulder-Hip-Ankle: indices 5/11/15)
+            // Checking body alignment (Plank position)
+            const bodyAngle = calculateAngle(keypoints[5], keypoints[11], keypoints[15]);
+            if (bodyAngle < 170 || bodyAngle > 190) {
+                feedback.push({ text: '⚡ Lock in that plank position!', type: 'bad' });
+                isCorrect = false;
+            } else {
+                 feedback.push({ text: '🏆 Body like a steel beam!', type: 'good' });
+            }
+
+            return { isCorrect, feedback };
+        }
+        
+        // Lunge check (for completeness - accuracy is not tracked for this exercise)
+        function checkLungeForm(keypoints) {
+            const feedback = [];
+            let isCorrect = true;
+            // LEFT LEG (Front Leg)
+            const hipL = keypoints[11]; const kneeL = keypoints[13]; const ankleL = keypoints[15];
+            if (kneeL.score > 0.3 && hipL.score > 0.3 && ankleL.score > 0.3) {
+                const angleLeft = calculateAngle(hipL, kneeL, ankleL);
+                const { smoothAngle: smoothL, stage: stageL } = lungeLeftCounter.update(angleLeft, 165, 85);
+                
+                if (smoothL > 80 && smoothL < 100) {
+                    feedback.push({ text: '🔥 Perfect 90-degree power!', type: 'good' });
+                } else if (stageL === 'down' && smoothL < 80) {
+                    feedback.push({ text: '⚡ Ease up - protect those knees!', type: 'bad' });
+                    isCorrect = false;
+                }
+            }
+            
+            // RIGHT LEG (Back Leg)
+            const hipR = keypoints[12]; const kneeR = keypoints[14]; const ankleR = keypoints[16];
+            if (kneeR.score > 0.3 && hipR.score > 0.3 && ankleR.score > 0.3) {
+                const angleRight = calculateAngle(hipR, kneeR, ankleR);
+                const { smoothAngle: smoothR, stage: stageR } = lungeRightCounter.update(angleRight, 165, 85);
+
+                if (smoothR > 80 && smoothR < 120) {
+                    feedback.push({ text: '💪 Back leg stability locked!', type: 'good' });
+                } else if (stageR === 'down' && smoothR > 120) {
+                    feedback.push({ text: '🎯 Drop that back knee lower!', type: 'bad' });
+                    isCorrect = false;
+                }
+            }
+            
+            if (!isCorrect) {
+                feedback.unshift({ text: '💥 Dial in that lunge form!', type: 'bad' });
+            } else {
+                feedback.unshift({ text: '🏆 Lunge game is STRONG!', type: 'good' });
+            }
+            updateStats();
+            return { isCorrect, feedback };
+        }
+
+        // Plank check (for completeness)
+        function checkPlankForm(keypoints) {
+            const feedback = [];
+            let isCorrect = true;
+            const shoulderL = keypoints[5];
+            const hipL = keypoints[11];
+            const ankleL = keypoints[15];
+
+            if (shoulderL.score > 0.3 && hipL.score > 0.3 && ankleL.score > 0.3) {
+                const bodyAngle = calculateAngle(shoulderL, hipL, ankleL);
+                
+                if (bodyAngle > 170 && bodyAngle < 190) {
+                    feedback.push({ text: '🔥 Plank perfection achieved!', type: 'good' });
+                } else if (bodyAngle < 170) {
+                    feedback.push({ text: '⚡ Lift those hips - fight gravity!', type: 'bad' });
+                    isCorrect = false;
+                } else {
+                    feedback.push({ text: '💪 Lower those hips - find the line!', type: 'bad' });
+                    isCorrect = false;
+                }
+            } else {
+                feedback.push({ text: '🎯 Get in the frame, champion!', type: 'bad' });
+                isCorrect = false;
+            }
+            updateStats(); 
+            return { isCorrect, feedback };
+        }
+
+        // Bicep Curl check (for completeness)
+        function checkBicepCurlForm(keypoints) {
+            const feedback = [];
+            let isCorrect = true;
+            // LEFT ARM (Shoulder-Elbow-Wrist: indices 5/7/9)
+            const shoulderL = keypoints[5]; const elbowL = keypoints[7]; const wristL = keypoints[9];
+            if (elbowL.score > 0.3 && shoulderL.score > 0.3 && wristL.score > 0.3) {
+                const angleLeft = calculateAngle(shoulderL, elbowL, wristL);
+                // UP=165 (straight arm), DOWN=30 (fully curled)
+                const { smoothAngle, stage } = bicepLeftCounter.update(angleLeft, 165, 30);
+                
+                feedback.push({ text: `Left: ${Math.round(smoothAngle)}° | ${stage.toUpperCase()}`, type: 'good' });
+                if (smoothAngle > 100 && smoothAngle < 165 && stage === 'down') {
+                    feedback.push({ text: '💥 Squeeze harder - full contraction!', type: 'bad' });
+                    isCorrect = false;
+                }
+            } else {
+                 feedback.push({ text: '🎯 Show me that left arm power!', type: 'bad' });
+                 isCorrect = false;
+            }
+
+            // RIGHT ARM (Shoulder-Elbow-Wrist: indices 6/8/10)
+            const shoulderR = keypoints[6]; const elbowR = keypoints[8]; const wristR = keypoints[10];
+            if (elbowR.score > 0.3 && shoulderR.score > 0.3 && wristR.score > 0.3) {
+                const angleRight = calculateAngle(shoulderR, elbowR, wristR);
+                const { smoothAngle, stage } = bicepRightCounter.update(angleRight, 165, 30);
+                
+                feedback.push({ text: `Right: ${Math.round(smoothAngle)}° | ${stage.toUpperCase()}`, type: 'good' });
+                if (smoothAngle > 100 && smoothAngle < 165 && stage === 'down') {
+                    feedback.push({ text: '🔥 Max squeeze for max gains!', type: 'bad' });
+                    isCorrect = false;
+                }
+            } else {
+                 feedback.push({ text: '💪 Right arm in the spotlight!', type: 'bad' });
+                 isCorrect = false;
+            }
+            updateStats(); 
+            return { isCorrect, feedback };
+        }
+
+        function checkBurpeeForm(keypoints) {
+            const feedback = [];
+            let isCorrect = true;
+            const hipL = keypoints[11]; const kneeL = keypoints[13]; const ankleL = keypoints[15];
+            const elbowL = keypoints[7]; const shoulderL = keypoints[5]; const wristL = keypoints[9];
+            
+            if (kneeL.score > 0.3 && elbowL.score > 0.3) {
+                const kneeAngle = calculateAngle(hipL, kneeL, ankleL);
+                const elbowAngle = calculateAngle(shoulderL, elbowL, wristL);
+                
+                // Define proxy angle for Burpee state (simplified logic)
+                const isUp = kneeAngle > 160 && elbowAngle > 160;
+                const isDown = (kneeAngle < 100 || elbowAngle < 100);
+                let currentAngle = isUp ? 180 : (isDown ? 90 : 135); 
+                
+                // Update Rep Counter: UP=160, DOWN=100
+                const { smoothAngle, stage } = burpeeCounter.update(currentAngle, 160, 100);
+
+                if (stage === 'down' && !isDown) {
+                    feedback.push({ text: '💥 Hit that plank position!', type: 'bad' });
+                    isCorrect = false;
+                } else if (stage === 'up' && !isUp) {
+                    feedback.push({ text: '🚀 Explode up and jump!', type: 'bad' });
+                    isCorrect = false;
+                } else {
+                    feedback.push({ text: '🔥 Burpee beast mode!', type: 'good' });
+                }
+
+                feedback.push({ text: `${stage.toUpperCase()} | Knee: ${Math.round(kneeAngle)}° | Elbow: ${Math.round(elbowAngle)}°`, type: 'good' });
+
+            } else {
+                 feedback.push({ text: '🎯 Full body in frame for burpees!', type: 'bad' });
+                 isCorrect = false;
+            }
+            updateStats();
+            return { isCorrect, feedback };
+        }
+        
+        function checkPullupForm(keypoints) {
+            const feedback = [];
+            let isCorrect = true;
+            const shoulderL = keypoints[5]; const elbowL = keypoints[7]; const wristL = keypoints[9];
+            if (elbowL.score > 0.3 && shoulderL.score > 0.3 && wristL.score > 0.3) {
+                const elbowAngle = calculateAngle(shoulderL, elbowL, wristL);
+                
+                // Update Rep Counter: UP=170 (straight arm), DOWN=80 (pulled to chin level)
+                const { smoothAngle, stage } = pullupCounter.update(elbowAngle, 170, 80);
+
+                if (stage === 'down' && smoothAngle > 100) {
+                    feedback.push({ text: '💪 Pull higher - chin over bar!', type: 'bad' });
+                    isCorrect = false;
+                } else if (stage === 'up' && smoothAngle < 160) {
+                    feedback.push({ text: '⚡ Full extension for full gains!', type: 'bad' });
+                    isCorrect = false;
+                } else {
+                    feedback.push({ text: '🏆 Pull-up power unleashed!', type: 'good' });
+                }
+
+                feedback.push({ text: `Elbow: ${Math.round(smoothAngle)}° | ${stage.toUpperCase()}`, type: 'good' });
+            } else {
+                 feedback.push({ text: '🎯 Show those arms in action!', type: 'bad' });
+                 isCorrect = false;
+            }
+            updateStats();
+            return { isCorrect, feedback };
+        }
+
+        // Analyze pose based on selected exercise
+        function analyzePose(keypoints) {
+            switch(selectedExercise) {
+                case 'squat': return checkSquatForm(keypoints);
+                case 'plank': return checkPlankForm(keypoints);
+                case 'pushup': return checkPushupForm(keypoints);
+                case 'lunge': return checkLungeForm(keypoints);
+                case 'bicep': return checkBicepCurlForm(keypoints);
+                case 'burpee': return checkBurpeeForm(keypoints);
+                case 'pullup': return checkPullupForm(keypoints);
+                default: return { isCorrect: false, feedback: [] };
+            }
+        }
+
+        // Update UI with feedback and track accuracy frames
+        function updateFeedback(isCorrect, feedback) {
+            poseFeedback.style.display = 'block';
+            
+            // Only Squat, Pushup, Bicep, Burpee, Pullup track frame-based accuracy
+            const trackAccuracy = ['squat', 'pushup', 'bicep', 'burpee', 'pullup'].includes(selectedExercise);
+            
+            if (isCorrect) {
+                poseFeedback.innerHTML = `<i class="fas fa-fire"></i> ${getRandomMessage('correct')}`;
+                poseFeedback.className = 'pose-feedback correct';
+                
+                if (trackAccuracy && currentPoseState !== 'correct') {
+                    // Start counting correct frames
+                    correctFrames++;
+                    updateStats();
+                }
+                currentPoseState = 'correct';
+
+            } else {
+                poseFeedback.innerHTML = `<i class="fas fa-target"></i> ${getRandomMessage('incorrect')}`;
+                poseFeedback.className = 'pose-feedback incorrect';
+                
+                if (trackAccuracy && currentPoseState === 'correct') {
+                    // Transition from correct to incorrect form
+                    incorrectFrames++;
+                    updateStats();
+                } else if (trackAccuracy && currentPoseState !== 'incorrect') {
+                     // Initial bad form/transition from neutral
+                     incorrectFrames++;
+                     updateStats();
+                }
+                currentPoseState = 'incorrect';
+            }
+            
+            // If the user is out of frame, don't count it as a correct/incorrect frame
+            if (feedback.some(f => f.text.includes('Get in the frame') || f.text.includes('spotlight') || f.text.includes('not visible'))) {
+                 currentPoseState = 'neutral';
+            }
+
+            feedbackList.innerHTML = feedback.map(item => 
+                `<div class="feedback-item ${item.type}">${item.text}</div>`
+            ).join('');
+        }
+        
+        // --- Boilerplate functions (Webcam, Drawing, Model Loading) ---
+
+        function updateHandIndicators(keypoints) {
+            const leftWrist = keypoints[9];
+            const rightWrist = keypoints[10];
+            if (leftWrist.score > 0.3) {
+                leftHandIndicator.classList.add('detected');
+                leftHandIndicator.innerHTML = '<i class="fas fa-check"></i> Left Locked';
+            } else {
+                leftHandIndicator.classList.remove('detected');
+                leftHandIndicator.innerHTML = '<i class="fas fa-hand-paper"></i> Left Hand';
+            }
+            if (rightWrist.score > 0.3) {
+                rightHandIndicator.classList.add('detected');
+                rightHandIndicator.innerHTML = '<i class="fas fa-check"></i> Right Locked';
+            } else {
+                rightHandIndicator.classList.remove('detected');
+                rightHandIndicator.innerHTML = '<i class="fas fa-hand-paper"></i> Right Hand';
+            }
+        }
+
+        const adjacentPairs = [
+            [5, 6], [5, 7], [7, 9], [6, 8], [8, 10],
+            [5, 11], [6, 12], [11, 12],
+            [11, 13], [13, 15], [12, 14], [14, 16]
+        ];
+
+        function drawSkeleton(keypoints, isCorrect) {
+            const color = isCorrect ? '#00d084' : '#ff6900';
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = color;
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 15;
+
+            adjacentPairs.forEach(([i, j]) => {
+                const kp1 = keypoints[i];
+                const kp2 = keypoints[j];
+
+                if (kp1.score > 0.3 && kp2.score > 0.3) {
+                    ctx.beginPath();
+                    ctx.moveTo(kp1.x, kp1.y);
+                    ctx.lineTo(kp2.x, kp2.y);
+                    ctx.stroke();
+                }
+            });
+            
+            ctx.shadowBlur = 0;
+        }
+
+        function drawKeypoints(keypoints, isCorrect) {
+            const color = isCorrect ? '#00d084' : '#ff6900';
+            keypoints.forEach((keypoint, index) => {
+                if (keypoint.score > 0.3) {
+                    ctx.beginPath();
+                    ctx.arc(keypoint.x, keypoint.y, 12, 0, 2 * Math.PI);
+                    ctx.fillStyle = color;
+                    ctx.shadowColor = color;
+                    ctx.shadowBlur = 20;
+                    ctx.fill();
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 4;
+                    ctx.shadowBlur = 0;
+                    ctx.stroke();
+                }
+            });
+        }
+
+        async function loadModels() {
+            try {
+                updateStatus('Loading AI models... <div class="loading-spinner"></div>', 'loading');
+                await tf.ready();
+                
+                const detectorConfig = {
+                    modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING
+                };
+                poseDetector = await poseDetection.createDetector(
+                    poseDetection.SupportedModels.MoveNet, 
+                    detectorConfig
+                );
+
+                updateStatus('AI loaded! Ready to dominate your workout!', 'ready');
+                return true;
+            } catch (error) {
+                updateStatus('Error loading AI: ' + error.message, 'error');
+                return false;
+            }
+        }
+
+        async function startWebcam() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 640 }, height: { ideal: 480 } },
+                    audio: false
+                });
+                video.srcObject = stream;
+                
+                video.onloadedmetadata = () => {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    startBtn.disabled = true;
+                    stopBtn.disabled = false;
+                    isRunning = true;
+                    updateStatus('Training mode activated! Show me what you got!', 'ready');
+                    detectFrame();
+                };
+            } catch (error) {
+                updateStatus('Camera access needed to unleash your potential!', 'error');
+            }
+        }
+
+        function stopWebcam() {
+            isRunning = false;
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            poseFeedback.style.display = 'none';
+            leftHandIndicator.classList.remove('detected');
+            leftHandIndicator.innerHTML = '<i class="fas fa-hand-paper"></i> Left Hand';
+            rightHandIndicator.classList.remove('detected');
+            rightHandIndicator.innerHTML = '<i class="fas fa-hand-paper"></i> Right Hand';
+            updateStatus('Session complete! Ready for round two?', '');
+            resetStats();
+        }
+
+        async function detectFrame() {
+            if (!isRunning) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            try {
+                const poses = await poseDetector.estimatePoses(video);
+                
+                if (poses && poses.length > 0) {
+                    // Use normalized keypoints for angle calculation, denormalize for drawing
+                    const keypoints = poses[0].keypoints.map(kp => ({
+                        x: kp.x / video.videoWidth,
+                        y: kp.y / video.videoHeight,
+                        score: kp.score
+                    }));
+                    
+                    // Denormalize keypoints for drawing and indicators
+                    const drawKeypointsArray = keypoints.map(kp => ({
+                        ...kp, 
+                        x: kp.x * canvas.width, 
+                        y: kp.y * canvas.height
+                    }));
+
+                    updateHandIndicators(drawKeypointsArray);
+                    
+                    const { isCorrect, feedback } = analyzePose(keypoints);
+                    
+                    drawSkeleton(drawKeypointsArray, isCorrect);
+                    drawKeypoints(drawKeypointsArray, isCorrect);
+                    
+                    updateFeedback(isCorrect, feedback);
+                } else {
+                    poseFeedback.style.display = 'block';
+                    poseFeedback.innerHTML = '<i class="fas fa-user"></i> Step Into Greatness';
+                    poseFeedback.className = 'pose-feedback neutral';
+                    feedbackList.innerHTML = '<div class="feedback-item"><i class="fas fa-search"></i> Scanning for champion...</div>';
+                    // Reset pose state when out of frame
+                    currentPoseState = 'neutral';
+                }
+            } catch (error) {
+                console.error('Detection error:', error);
+            }
+
+            requestAnimationFrame(detectFrame);
+        }
+
+        startBtn.addEventListener('click', async () => {
+            if (!poseDetector) {
+                const loaded = await loadModels();
+                if (!loaded) return;
+            }
+            startWebcam();
+        });
+
+        stopBtn.addEventListener('click', stopWebcam);
+
+        loadModels();
+    </script>
+</body>
+</html>
