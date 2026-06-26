@@ -718,6 +718,343 @@
             letter-spacing: 2px;
             box-shadow: var(--shadow-soft);
         }
+        /* ====== REFERENCE VIDEO FALLBACK ====== */
+        .video-fallback {
+            width: 100%;
+            height: 400px;
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+        }
+        .fallback-thumb {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            opacity: 0.45;
+        }
+        .fallback-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 18px;
+            background: linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0.25) 0%,
+                rgba(0, 0, 0, 0.72) 100%
+            );
+        }
+        .fallback-cues {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .cue-item {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            color: var(--nike-white);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            line-height: 1.3;
+        }
+        .cue-item i { color: var(--success-green); flex-shrink: 0; font-size: 0.75rem; }
+        .fallback-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .play-video-btn {
+            padding: 11px 26px;
+            background: var(--primary-gradient);
+            color: var(--nike-white);
+            border: none;
+            border-radius: 25px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 18px rgba(255, 105, 0, 0.35);
+        }
+        .play-video-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 105, 0, 0.45);
+        }
+        .watch-yt-btn {
+            padding: 11px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            color: var(--nike-white);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 25px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(4px);
+        }
+        .watch-yt-btn:hover {
+            border-color: var(--nike-white);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        /* ====== BURPEE FSM PROGRESS BAR ====== */
+        .burpee-progress-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 12px;
+        }
+        .burpee-stage-label {
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+            margin-bottom: 12px;
+            color: var(--nike-orange);
+        }
+        .burpee-steps {
+            display: flex;
+            justify-content: space-between;
+            gap: 5px;
+        }
+        .burpee-step {
+            flex: 1;
+            text-align: center;
+            padding: 9px 3px 7px;
+            border-radius: 7px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--nike-gray);
+            transition: var(--transition);
+            line-height: 1.4;
+        }
+        .burpee-step .step-icon { font-size: 1rem; display: block; margin-bottom: 3px; }
+        .burpee-step.active {
+            background: var(--primary-gradient);
+            border-color: var(--nike-orange);
+            color: var(--nike-white);
+            box-shadow: 0 0 14px rgba(255, 105, 0, 0.35);
+            transform: translateY(-2px);
+        }
+        .burpee-step.done {
+            background: rgba(0, 208, 132, 0.12);
+            border-color: var(--success-green);
+            color: var(--success-green);
+        }
+
+        /* ====== PLANK QUALITY INDICATOR ====== */
+        .plank-q-good    { color: var(--success-green);  font-family: 'Oswald', sans-serif; font-size: 1.2rem; font-weight: 700; }
+        .plank-q-sagging { color: var(--warning-yellow); font-family: 'Oswald', sans-serif; font-size: 1.2rem; font-weight: 700; }
+        .plank-q-broken  { color: var(--error-red);      font-family: 'Oswald', sans-serif; font-size: 1.2rem; font-weight: 700; }
+
+        /* ====== SESSION PERSISTENCE UI ====== */
+        .pb-badge {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, rgba(255, 105, 0, 0.15) 0%, rgba(230, 0, 18, 0.15) 100%);
+            border: 1px solid rgba(255, 105, 0, 0.4);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--nike-orange);
+        }
+        .pb-badge.visible { display: flex; }
+        .pb-badge strong { color: var(--nike-white); margin: 0 2px; }
+
+        .history-section {
+            background: var(--nike-dark-gray);
+            border-radius: 12px;
+            border: 2px solid rgba(255, 105, 0, 0.2);
+            overflow: hidden;
+            margin-top: 30px;
+            box-shadow: var(--shadow-intense);
+        }
+
+        .history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 25px;
+            cursor: pointer;
+            user-select: none;
+            transition: var(--transition);
+        }
+        .history-header:hover { background: rgba(255, 105, 0, 0.05); }
+
+        .history-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .history-chevron {
+            transition: transform 0.3s ease;
+            color: var(--nike-orange);
+            font-size: 1rem;
+        }
+        .history-chevron.open { transform: rotate(180deg); }
+
+        .history-body {
+            display: none;
+            padding: 0 25px 25px;
+        }
+        .history-body.open { display: block; }
+
+        .history-controls {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 16px;
+        }
+
+        .clear-history-btn {
+            padding: 8px 18px;
+            background: transparent;
+            border: 1px solid rgba(255, 51, 51, 0.5);
+            border-radius: 20px;
+            color: var(--error-red);
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .clear-history-btn:hover {
+            background: rgba(255, 51, 51, 0.1);
+            border-color: var(--error-red);
+        }
+
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 12px;
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 16px 18px;
+            transition: var(--transition);
+        }
+        .history-item:hover {
+            border-color: rgba(255, 105, 0, 0.3);
+            background: rgba(255, 105, 0, 0.04);
+        }
+
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .history-exercise-name {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--nike-white);
+        }
+
+        .history-timestamp {
+            font-size: 0.72rem;
+            color: var(--nike-gray);
+            white-space: nowrap;
+        }
+
+        .history-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .history-stat-label {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--nike-gray);
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .history-stat-value {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .history-empty {
+            text-align: center;
+            padding: 30px;
+            color: var(--nike-gray);
+            font-family: 'Oswald', sans-serif;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            line-height: 2;
+        }
+
+        .history-pb-tag {
+            display: inline-block;
+            padding: 2px 7px;
+            background: var(--primary-gradient);
+            border-radius: 10px;
+            font-size: 0.62rem;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--nike-white);
+            margin-left: 6px;
+            vertical-align: middle;
+            -webkit-text-fill-color: var(--nike-white);
+        }
     </style>
 </head>
 <body>
@@ -741,12 +1078,29 @@
                     <span>Master The Movement</span>
                 </div>
                 <div class="reference-video-container">
-                    <iframe id="referenceVideo" 
-                            width="100%" 
-                            height="400" 
-                            frameborder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowfullscreen>
+                    <!-- Fallback panel: always shown first; iframe injected on "Watch Tutorial" click -->
+                    <div id="videoFallback" class="video-fallback">
+                        <img id="fallbackThumb" class="fallback-thumb" src="" alt="Exercise tutorial thumbnail">
+                        <div class="fallback-overlay">
+                            <div id="fallbackCues" class="fallback-cues"></div>
+                            <div class="fallback-actions">
+                                <button class="play-video-btn" onclick="playReferenceVideo()">
+                                    <i class="fas fa-play-circle"></i> Watch Tutorial
+                                </button>
+                                <a id="watchYtLink" class="watch-yt-btn" href="#" target="_blank" rel="noopener noreferrer">
+                                    <i class="fas fa-external-link-alt"></i> Open in YouTube
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- iframe is hidden until user clicks "Watch Tutorial" -->
+                    <iframe id="referenceVideo"
+                            width="100%"
+                            height="400"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen
+                            style="display:none;">
                     </iframe>
                 </div>
 
@@ -816,6 +1170,8 @@
                     </div>
                 </div>
 
+                <div id="pbBadge" class="pb-badge"></div>
+
                 <div class="stats-container" id="generalStatsPanel">
                     <div class="stats-panel">
                         <div class="stats-title" id="statsPanelTitle">
@@ -868,6 +1224,26 @@
                     </div>
                 </div>
                 
+                <div class="stats-container hidden" id="plankStatsPanel">
+                    <div class="stats-panel">
+                        <div class="stats-title">
+                            <span><i class="fas fa-minus"></i> Plank Hold</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><i class="fas fa-clock"></i> Hold Time</span>
+                            <span class="stat-value" id="plankHoldTime">0s</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><i class="fas fa-trophy"></i> Longest Hold</span>
+                            <span class="stat-value" id="plankLongestHoldDisplay">0s</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><i class="fas fa-signal"></i> Form Quality</span>
+                            <span id="plankQualityDisplay">&#8212;</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="controls">
                     <button id="startBtn" class="control-btn">
                         <i class="fas fa-play"></i> Start Training
@@ -884,11 +1260,53 @@
                     </div>
                     <div id="feedbackList"></div>
                 </div>
+
+                <div id="burpeeProgress" class="burpee-progress-container" style="display:none;">
+                    <div class="burpee-stage-label" id="burpeeStageLabel">STANDING</div>
+                    <div class="burpee-steps">
+                        <div class="burpee-step active" id="bstep-0">
+                            <span class="step-icon">&#8597;</span>Stand
+                        </div>
+                        <div class="burpee-step" id="bstep-1">
+                            <span class="step-icon">&#8595;</span>Squat
+                        </div>
+                        <div class="burpee-step" id="bstep-2">
+                            <span class="step-icon">&#8212;</span>Plank
+                        </div>
+                        <div class="burpee-step" id="bstep-3">
+                            <span class="step-icon">&#8595;</span>PU&nbsp;Down
+                        </div>
+                        <div class="burpee-step" id="bstep-4">
+                            <span class="step-icon">&#8593;</span>PU&nbsp;Up
+                        </div>
+                        <div class="burpee-step" id="bstep-5">
+                            <span class="step-icon">&#128640;</span>Jump
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div id="status" class="status">
             <i class="fas fa-rocket"></i> Ready to crush your workout? Hit "Start Training"
+        </div>
+
+        <div class="history-section">
+            <div class="history-header" onclick="toggleHistoryPanel()">
+                <div class="history-header-left">
+                    <div class="section-icon"><i class="fas fa-history"></i></div>
+                    <span>Session History</span>
+                </div>
+                <i class="fas fa-chevron-down history-chevron" id="historyChevron"></i>
+            </div>
+            <div class="history-body" id="historyBody">
+                <div class="history-controls">
+                    <button class="clear-history-btn" onclick="clearHistory()">
+                        <i class="fas fa-trash-alt"></i> Clear History
+                    </button>
+                </div>
+                <div id="historyList"></div>
+            </div>
         </div>
     </div>
 
@@ -993,47 +1411,119 @@
         // --- EXERCISE COUNTER INITIALIZATION ---
         let squatCounter = new RepCounter(); 
         let pushupCounter = new RepCounter();
-        let burpeeCounter = new RepCounter();
+        // --- BURPEE FSM STATE (replaces burpeeCounter) ---
+        const BURPEE_STAGES   = ['STANDING', 'SQUAT_DOWN', 'PLANK', 'PUSH_UP_DOWN', 'PUSH_UP_UP', 'JUMP_UP'];
+        let burpeeStage       = 'STANDING';
+        let burpeeRepCount    = 0;
+        let burpeeHipBaseline = null;  // normalised hip Y captured while STANDING
+        let burpeePushUpUpTs  = null;  // performance.now() when PUSH_UP_UP was entered
+        let burpeePushUpHipY  = null;  // hip Y when PUSH_UP_UP was entered (plank-ish level)
         let pullupCounter = new RepCounter();
         let bicepLeftCounter = new RepCounter(5); 
         let bicepRightCounter = new RepCounter(5);
         let lungeLeftCounter = new RepCounter();
         let lungeRightCounter = new RepCounter();
 
-        // Reference videos for each exercise - YouTube embeds
-        const referenceVideos = {
-            squat: 'https://www.youtube.com/embed/ultWZbUMPL8',
-            plank: 'https://www.youtube.com/embed/ASdvN_XEl_c',
-            pushup: 'https://www.youtube.com/embed/IODxDxX7oi4',
-            lunge: 'https://www.youtube.com/embed/QOVaHwm-Q6U',
-            bicep: 'https://www.youtube.com/embed/ykJmrZ5v0Oo',
-            burpee: 'https://www.youtube.com/embed/Q9aj6N5n_9o',
-            pullup: 'https://www.youtube.com/embed/eGo4ZgJ_wzM'
+        // --- PLANK HOLD TIMER STATE ---
+        let plankState          = 'idle';  // 'idle' | 'holding' | 'paused'
+        let plankSegmentStart   = null;    // performance.now() when current segment started
+        let plankAccumMs        = 0;       // ms accumulated from completed hold segments
+        let plankElapsedSeconds = 0;       // live total hold seconds (updated each frame)
+        let plankQuality        = 'idle';  // 'good' | 'sagging' | 'broken'
+
+        // YouTube video IDs — only the ID, not the full URL.
+        // Thumbnail is always fetchable at img.youtube.com/vi/<ID>/hqdefault.jpg
+        // even when a channel disables iframe embedding.
+        const referenceVideoIds = {
+            squat:  'ultWZbUMPL8',   // keep existing
+            lunge:  'QOVaHwm-Q6U',   // keep existing
+            pushup: 'IODxDxX7oi4',   // keep existing
+            plank:  'ASdvN_XEl_c',   // plank tutorial
+            bicep:  'ykJmrZ5v0Oo',   // keep existing
+            burpee: 'auBLPXO8Fww',   // CrossFit official burpee tutorial
+            pullup: 'vw5Xmu5CIew',   // Buff Dudes pull-up form tutorial
         };
 
-        // Load reference video
+        // Per-exercise form cues shown in the fallback panel
+        const exerciseCues = {
+            squat:  ['Feet shoulder-width apart',   'Knees track over toes',         'Chest up, back straight',   'Hit parallel depth'],
+            lunge:  ['Step forward, drop back knee', 'Front shin stays vertical',     'Torso upright, core tight', '90\u00b0 bend on both knees'],
+            pushup: ['Hands shoulder-width apart',   'Body straight head to heel',    'Lower chest to floor',      'Full arm extension at top'],
+            plank:  ['Forearms flat on floor',       'No sag or pike \u2014 stay flat', 'Hips level, core braced', 'Breathe steadily throughout'],
+            bicep:  ['Elbows pinned at sides',       'Curl to full contraction',      'Slow controlled lowering',  'Full dead-hang at bottom'],
+            burpee: ['Drop hands, jump feet back',   'Strict push-up in plank',       'Jump feet to hands',        'Leap and clap overhead'],
+            pullup: ['Grip slightly wider than shoulders', 'Pull elbows down to hips', 'Chin clears the bar',      'Full dead-hang at bottom'],
+        };
+
+        // Shows the fallback panel (thumbnail + cues + buttons) for the given exercise.
+        // Resets any previously injected iframe.
         function loadReferenceVideo(exercise) {
-            referenceVideo.src = referenceVideos[exercise] || referenceVideos['squat'];
+            const videoId  = referenceVideoIds[exercise] || referenceVideoIds['squat'];
+            const iframe   = document.getElementById('referenceVideo');
+            const fallback = document.getElementById('videoFallback');
+            const thumb    = document.getElementById('fallbackThumb');
+            const cuesEl   = document.getElementById('fallbackCues');
+            const ytLink   = document.getElementById('watchYtLink');
+
+            // Always reset to fallback-first on exercise switch
+            if (iframe)   { iframe.src = ''; iframe.style.display = 'none'; }
+            if (fallback) fallback.style.display = '';
+
+            // Thumbnail from YouTube CDN — public regardless of embed permissions
+            if (thumb) {
+                thumb.src = 'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg';
+                thumb.alt = exercise.charAt(0).toUpperCase() + exercise.slice(1) + ' tutorial';
+            }
+
+            // Form cues
+            const cues = exerciseCues[exercise] || [];
+            if (cuesEl) {
+                cuesEl.innerHTML = cues
+                    .map(function(c) {
+                        return '<div class="cue-item"><i class="fas fa-check-circle"></i> ' + c + '</div>';
+                    })
+                    .join('');
+            }
+
+            // Direct YouTube link — works even when embedding is disabled
+            if (ytLink) ytLink.href = 'https://www.youtube.com/watch?v=' + videoId;
+        }
+
+        // Injects the iframe (with autoplay) and hides the fallback panel.
+        // Called only on explicit user click — avoids auto-loading broken embeds.
+        function playReferenceVideo() {
+            const videoId  = referenceVideoIds[selectedExercise] || referenceVideoIds['squat'];
+            const iframe   = document.getElementById('referenceVideo');
+            const fallback = document.getElementById('videoFallback');
+            if (iframe) {
+                iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1';
+                iframe.style.display = 'block';
+            }
+            if (fallback) fallback.style.display = 'none';
         }
         
         // Toggle visibility of the stats panels
         function toggleStatsPanel(exercise) {
             generalStatsPanel.classList.add('hidden');
             bicepStatsPanel.classList.add('hidden');
-            
-            if (['squat', 'pushup', 'burpee', 'pullup', 'lunge', 'plank'].includes(exercise)) {
+            document.getElementById('plankStatsPanel').classList.add('hidden');
+            const _bpb = document.getElementById('burpeeProgress');
+            if (_bpb) _bpb.style.display = exercise === 'burpee' ? 'block' : 'none';
+
+            if (['squat', 'pushup', 'burpee', 'pullup', 'lunge'].includes(exercise)) {
                 generalStatsPanel.classList.remove('hidden');
                 const exerciseName = exercise.charAt(0).toUpperCase() + exercise.slice(1);
                 statsPanelTitle.innerHTML = `<span><i class="fas fa-chart-line"></i> ${exerciseName} Performance</span>`;
-                // Lunge and Plank don't track Reps/Accuracy easily, but use the general panel
-                if (exercise === 'lunge' || exercise === 'plank') {
-                     totalRepsDiv.textContent = '--';
-                     correctFramesDiv.textContent = '--';
-                     incorrectFramesDiv.textContent = '--';
-                     accuracyDiv.textContent = '--';
+                if (exercise === 'lunge') {
+                    totalRepsDiv.textContent    = '--';
+                    correctFramesDiv.textContent   = '--';
+                    incorrectFramesDiv.textContent = '--';
+                    accuracyDiv.textContent        = '--';
                 }
             } else if (exercise === 'bicep') {
                 bicepStatsPanel.classList.remove('hidden');
+            } else if (exercise === 'plank') {
+                document.getElementById('plankStatsPanel').classList.remove('hidden');
             }
         }
 
@@ -1049,12 +1539,15 @@
                 
                 loadReferenceVideo(selectedExercise);
                 resetStats();
-                toggleStatsPanel(selectedExercise); 
+                toggleStatsPanel(selectedExercise);
+                renderPBBadge(selectedExercise);
             });
         });
 
         loadReferenceVideo('squat');
-        toggleStatsPanel('squat'); 
+        toggleStatsPanel('squat');
+        renderHistoryPanel();
+        renderPBBadge('squat');
 
         function resetStats() {
             correctFrames = 0;
@@ -1064,17 +1557,45 @@
             // Reset individual exercise counters
             squatCounter.reset();
             pushupCounter.reset();
-            burpeeCounter.reset();
+            // Reset burpee FSM
+            burpeeStage       = 'STANDING';
+            burpeeRepCount    = 0;
+            burpeeHipBaseline = null;
+            burpeePushUpUpTs  = null;
+            burpeePushUpHipY  = null;
+            updateBurpeeProgressBar();
             pullupCounter.reset();
             bicepLeftCounter.reset();
             bicepRightCounter.reset();
             lungeLeftCounter.reset();
             lungeRightCounter.reset();
 
+            // Reset plank hold timer
+            plankState          = 'idle';
+            plankSegmentStart   = null;
+            plankAccumMs        = 0;
+            plankElapsedSeconds = 0;
+            plankQuality        = 'idle';
+            const _pqd = document.getElementById('plankQualityDisplay');
+            if (_pqd) { _pqd.textContent = '\u2014'; _pqd.className = ''; }
+            const _pht = document.getElementById('plankHoldTime');
+            if (_pht) _pht.textContent = '0s';
+            const _plh = document.getElementById('plankLongestHoldDisplay');
+            if (_plh) _plh.textContent = '0s';
+
             updateStats();
         }
 
         function updateStats() {
+            // Persistence: detect a new completed rep and autosave
+            if (isRunning && currentSession) {
+                const liveReps = getLiveRepCount();
+                if (liveReps > prevRepCount) {
+                    prevRepCount = liveReps;
+                    onRepCompleted();
+                }
+            }
+
             let totalFrames = correctFrames + incorrectFrames;
             let acc = totalFrames > 0 ? Math.round((correctFrames / totalFrames) * 100) : 0;
             let currentReps = 0;
@@ -1111,22 +1632,42 @@
                     bicepAccuracyDiv.textContent = acc + '%';
                     break;
                 case 'burpee':
-                    currentReps = burpeeCounter.counter;
-                    currentStage = burpeeCounter.stage;
+                    currentReps  = burpeeRepCount;
+                    currentStage = burpeeStage;
                     totalRepsDiv.textContent = currentReps;
+                    updateBurpeeProgressBar();
                     break;
                 case 'pullup':
                     currentReps = pullupCounter.counter;
                     currentStage = pullupCounter.stage;
                     totalRepsDiv.textContent = currentReps;
                     break;
-                case 'plank':
-                    currentReps = 0;
-                    currentStage = 'Hold';
-                    correctFramesDiv.textContent = '--';
-                    incorrectFramesDiv.textContent = '--';
-                    accuracyDiv.textContent = '--';
+                case 'plank': {
+                    const _secs = Math.floor(plankElapsedSeconds);
+                    const _pht  = document.getElementById('plankHoldTime');
+                    const _plh  = document.getElementById('plankLongestHoldDisplay');
+                    const _pqd  = document.getElementById('plankQualityDisplay');
+                    if (_pht) _pht.textContent = _secs + 's';
+                    if (_plh) _plh.textContent = _secs + 's';   // total hold = session best for this attempt
+                    if (_pqd) {
+                        if (plankQuality === 'good') {
+                            _pqd.className   = 'plank-q-good';
+                            _pqd.textContent = '\u25cf Good';
+                        } else if (plankQuality === 'sagging') {
+                            _pqd.className   = 'plank-q-sagging';
+                            _pqd.textContent = '\u25cf Hips Sagging';
+                        } else if (plankQuality === 'broken') {
+                            _pqd.className   = 'plank-q-broken';
+                            _pqd.textContent = '\u25cf Break';
+                        } else {
+                            _pqd.className   = '';
+                            _pqd.textContent = '\u2014';
+                        }
+                    }
+                    currentReps  = _secs;
+                    currentStage = plankState;
                     break;
+                }
                 default:
                     currentReps = 0;
             }
@@ -1140,7 +1681,12 @@
 
             // Update the general Reps display in the feedback panel
             if (selectedExercise === 'plank') {
-                 exerciseRepsDisplay.textContent = `Hold Strong: --`;
+                const _s = Math.floor(plankElapsedSeconds);
+                exerciseRepsDisplay.textContent = plankState === 'holding'
+                    ? `Hold: ${_s}s`
+                    : plankState === 'paused'
+                        ? `Paused at ${_s}s`
+                        : 'Get into position';
             } else if (selectedExercise === 'lunge' || selectedExercise === 'bicep') {
                 exerciseRepsDisplay.textContent = `Total: ${currentReps} Reps`;
             } else {
@@ -1288,32 +1834,79 @@
             return { isCorrect, feedback };
         }
 
-        // Plank check (for completeness)
+        // Plank: hold timer with quality tracking (no RepCounter)
         function checkPlankForm(keypoints) {
-            const feedback = [];
-            let isCorrect = true;
+            const feedback  = [];
             const shoulderL = keypoints[5];
-            const hipL = keypoints[11];
-            const ankleL = keypoints[15];
+            const hipL      = keypoints[11];
+            const kneeL     = keypoints[13];
+            const ankleL    = keypoints[15];
 
-            if (shoulderL.score > 0.3 && hipL.score > 0.3 && ankleL.score > 0.3) {
-                const bodyAngle = calculateAngle(shoulderL, hipL, ankleL);
-                
-                if (bodyAngle > 170 && bodyAngle < 190) {
-                    feedback.push({ text: '🔥 Plank perfection achieved!', type: 'good' });
-                } else if (bodyAngle < 170) {
-                    feedback.push({ text: '⚡ Lift those hips - fight gravity!', type: 'bad' });
-                    isCorrect = false;
-                } else {
-                    feedback.push({ text: '💪 Lower those hips - find the line!', type: 'bad' });
-                    isCorrect = false;
+            const visible = shoulderL.score > 0.3 && hipL.score > 0.3 &&
+                            kneeL.score   > 0.3 && ankleL.score  > 0.3;
+
+            if (!visible) {
+                // Pause timer when out of frame
+                if (plankState === 'holding') {
+                    plankAccumMs     += performance.now() - plankSegmentStart;
+                    plankSegmentStart = null;
                 }
-            } else {
+                plankState          = 'paused';
+                plankQuality        = 'broken';
+                plankElapsedSeconds = plankAccumMs / 1000;
                 feedback.push({ text: '🎯 Get in the frame, champion!', type: 'bad' });
-                isCorrect = false;
+                feedback.push({ text: 'Re-engage to continue', type: 'bad' });
+                updateStats();
+                return { isCorrect: false, feedback };
             }
-            updateStats(); 
-            return { isCorrect, feedback };
+
+            // Knee angle (hip-knee-ankle): > 160° = legs straight
+            const kneeAngle    = calculateAngle(hipL, kneeL, ankleL);
+            const kneeStraight = kneeAngle > 160;
+
+            // Hip-shoulder level check in normalised coords.
+            // hipL.y - shoulderL.y > 0  means hip is lower in the image (sagging).
+            // Threshold 0.04 ≈ ±15–20 px at 480 p.
+            const hipDelta = hipL.y - shoulderL.y;
+            const hipLevel = Math.abs(hipDelta) < 0.04;
+
+            const goodForm = kneeStraight && hipLevel;
+
+            // --- Timer state machine ---
+            if (goodForm) {
+                if (plankState !== 'holding') {
+                    plankSegmentStart = performance.now();   // start / resume
+                }
+                plankState   = 'holding';
+                plankQuality = 'good';
+            } else {
+                if (plankState === 'holding') {
+                    plankAccumMs     += performance.now() - plankSegmentStart;
+                    plankSegmentStart = null;
+                }
+                plankState   = 'paused';
+                plankQuality = !hipLevel ? 'sagging' : 'broken';
+            }
+
+            // Live elapsed = accumulated + current open segment (if holding)
+            plankElapsedSeconds = plankState === 'holding'
+                ? (plankAccumMs + (performance.now() - plankSegmentStart)) / 1000
+                : plankAccumMs / 1000;
+
+            // --- Feedback ---
+            if (plankQuality === 'good') {
+                feedback.push({ text: `Hold: ${Math.floor(plankElapsedSeconds)}s — locked in!`, type: 'good' });
+                feedback.push({ text: `Knee: ${Math.round(kneeAngle)}\u00b0 — legs straight`, type: 'good' });
+            } else if (plankQuality === 'sagging') {
+                feedback.push({ text: hipDelta > 0 ? '⚡ Lift those hips — fight gravity!' : '💪 Lower those hips — find the line!', type: 'bad' });
+                feedback.push({ text: 'Re-engage to continue', type: 'bad' });
+            } else {
+                feedback.push({ text: '⚡ Lock in that plank position!', type: 'bad' });
+                feedback.push({ text: 'Re-engage to continue', type: 'bad' });
+            }
+
+            updateStats();
+            return { isCorrect: plankQuality === 'good', feedback };
         }
 
         // Bicep Curl check (for completeness)
@@ -1356,42 +1949,128 @@
             return { isCorrect, feedback };
         }
 
-        function checkBurpeeForm(keypoints) {
-            const feedback = [];
-            let isCorrect = true;
-            const hipL = keypoints[11]; const kneeL = keypoints[13]; const ankleL = keypoints[15];
-            const elbowL = keypoints[7]; const shoulderL = keypoints[5]; const wristL = keypoints[9];
-            
-            if (kneeL.score > 0.3 && elbowL.score > 0.3) {
-                const kneeAngle = calculateAngle(hipL, kneeL, ankleL);
-                const elbowAngle = calculateAngle(shoulderL, elbowL, wristL);
-                
-                // Define proxy angle for Burpee state (simplified logic)
-                const isUp = kneeAngle > 160 && elbowAngle > 160;
-                const isDown = (kneeAngle < 100 || elbowAngle < 100);
-                let currentAngle = isUp ? 180 : (isDown ? 90 : 135); 
-                
-                // Update Rep Counter: UP=160, DOWN=100
-                const { smoothAngle, stage } = burpeeCounter.update(currentAngle, 160, 100);
+        // Renders the 6-step progress bar for the burpee FSM
+        function updateBurpeeProgressBar() {
+            const label = document.getElementById('burpeeStageLabel');
+            if (label) label.textContent = burpeeStage.replace(/_/g, ' ');
+            const stageIdx = BURPEE_STAGES.indexOf(burpeeStage);
+            BURPEE_STAGES.forEach((_, i) => {
+                const el = document.getElementById('bstep-' + i);
+                if (!el) return;
+                el.classList.remove('active', 'done');
+                if (i === stageIdx)   el.classList.add('active');
+                else if (i < stageIdx) el.classList.add('done');
+            });
+        }
 
-                if (stage === 'down' && !isDown) {
-                    feedback.push({ text: '💥 Hit that plank position!', type: 'bad' });
-                    isCorrect = false;
-                } else if (stage === 'up' && !isUp) {
-                    feedback.push({ text: '🚀 Explode up and jump!', type: 'bad' });
-                    isCorrect = false;
-                } else {
-                    feedback.push({ text: '🔥 Burpee beast mode!', type: 'good' });
+        // Burpee: Finite State Machine
+        // Stages: STANDING → SQUAT_DOWN → PLANK → PUSH_UP_DOWN → PUSH_UP_UP → JUMP_UP → STANDING
+        // One rep is counted on each STANDING re-entry.
+        function checkBurpeeForm(keypoints) {
+            const feedback  = [];
+            const shoulderL = keypoints[5];
+            const elbowL    = keypoints[7];
+            const wristL    = keypoints[9];
+            const hipL      = keypoints[11];
+            const kneeL     = keypoints[13];
+            const ankleL    = keypoints[15];
+
+            const visible = shoulderL.score > 0.3 && elbowL.score > 0.3 &&
+                            wristL.score   > 0.3 && hipL.score    > 0.3 &&
+                            kneeL.score    > 0.3 && ankleL.score  > 0.3;
+
+            if (!visible) {
+                feedback.push({ text: '🎯 Full body in frame for burpees!', type: 'bad' });
+                updateStats();
+                return { isCorrect: false, feedback };
+            }
+
+            const kneeAngle  = calculateAngle(hipL,      kneeL,  ankleL);
+            const elbowAngle = calculateAngle(shoulderL, elbowL, wristL);
+            // wrist-ankle Y proximity: 0.06 ≈ ±30 px at 480 p (normalised coords)
+            const wristNearAnkle = Math.abs(wristL.y - ankleL.y) < 0.06;
+
+            // Keep a slow-moving hip baseline while STANDING so noisy frames don't corrupt it
+            if (burpeeStage === 'STANDING') {
+                burpeeHipBaseline = burpeeHipBaseline === null
+                    ? hipL.y
+                    : hipL.y * 0.1 + burpeeHipBaseline * 0.9;
+            }
+
+            // ---- FSM transitions ----
+            switch (burpeeStage) {
+
+                case 'STANDING':
+                    // Drop into a squat: knee bends past 100°
+                    if (kneeAngle < 100) {
+                        burpeeStage = 'SQUAT_DOWN';
+                    }
+                    break;
+
+                case 'SQUAT_DOWN':
+                    // Kick legs back to plank: knees straight AND wrists ≈ ankle height
+                    if (kneeAngle > 160 && wristNearAnkle) {
+                        burpeeStage = 'PLANK';
+                    }
+                    break;
+
+                case 'PLANK':
+                    // Lower chest: elbow bends past 90°
+                    if (elbowAngle < 90) {
+                        burpeeStage = 'PUSH_UP_DOWN';
+                    }
+                    break;
+
+                case 'PUSH_UP_DOWN':
+                    // Push back up: elbow extends past 150°
+                    if (elbowAngle > 150) {
+                        burpeeStage      = 'PUSH_UP_UP';
+                        burpeePushUpUpTs = performance.now();
+                        burpeePushUpHipY = hipL.y;  // record plank-level hip position
+                    }
+                    break;
+
+                case 'PUSH_UP_UP': {
+                    // Jump: hip rises > 50 px (0.10 normalised) from plank level within 0.5 s
+                    const elapsed  = performance.now() - burpeePushUpUpTs;
+                    const hipRise  = burpeePushUpHipY - hipL.y;  // + = hip went up in image
+                    if (hipRise > 0.10 && elapsed < 500) {
+                        burpeeStage = 'JUMP_UP';
+                    } else if (elapsed >= 500) {
+                        // Window expired — reset window so they can still attempt the jump
+                        burpeePushUpUpTs = performance.now();
+                        burpeePushUpHipY = hipL.y;
+                    }
+                    break;
                 }
 
-                feedback.push({ text: `${stage.toUpperCase()} | Knee: ${Math.round(kneeAngle)}° | Elbow: ${Math.round(elbowAngle)}°`, type: 'good' });
-
-            } else {
-                 feedback.push({ text: '🎯 Full body in frame for burpees!', type: 'bad' });
-                 isCorrect = false;
+                case 'JUMP_UP':
+                    // Land: hip Y returns to within 0.06 of standing baseline
+                    if (burpeeHipBaseline !== null &&
+                        Math.abs(hipL.y - burpeeHipBaseline) < 0.06) {
+                        burpeeStage = 'STANDING';
+                        burpeeRepCount++;
+                    }
+                    break;
             }
+
+            // ---- Stage-specific feedback ----
+            const stageMessages = {
+                STANDING:      { text: '🏁 Standing — squat down!',                 type: 'good' },
+                SQUAT_DOWN:    { text: '⬇ Squat — kick legs back to plank!',        type: 'good' },
+                PLANK:         { text: '— Plank locked — lower your chest!',         type: 'good' },
+                PUSH_UP_DOWN:  { text: '⬇ Push-up down — push back up!',            type: 'good' },
+                PUSH_UP_UP:    { text: '⬆ Push-up up — explode into the jump!',     type: 'good' },
+                JUMP_UP:       { text: '🚀 In the air — stick the landing!',         type: 'good' }
+            };
+            feedback.push(stageMessages[burpeeStage]);
+            feedback.push({
+                text: `Knee: ${Math.round(kneeAngle)}\u00b0  |  Elbow: ${Math.round(elbowAngle)}\u00b0`,
+                type: 'good'
+            });
+
             updateStats();
-            return { isCorrect, feedback };
+            return { isCorrect: true, feedback };
         }
         
         function checkPullupForm(keypoints) {
@@ -1583,6 +2262,7 @@
                     startBtn.disabled = true;
                     stopBtn.disabled = false;
                     isRunning = true;
+                    startSession();
                     updateStatus('Training mode activated! Show me what you got!', 'ready');
                     detectFrame();
                 };
@@ -1605,6 +2285,7 @@
             rightHandIndicator.classList.remove('detected');
             rightHandIndicator.innerHTML = '<i class="fas fa-hand-paper"></i> Right Hand';
             updateStatus('Session complete! Ready for round two?', '');
+            finalizeSession();
             resetStats();
         }
 
@@ -1653,6 +2334,228 @@
 
             requestAnimationFrame(detectFrame);
         }
+
+        // ===== SESSION PERSISTENCE LAYER =====
+
+        const STORAGE_KEY_SESSIONS = 'fitform_sessions';
+        const STORAGE_KEY_PBS      = 'fitform_pbs';
+        const MAX_SESSIONS = 50;
+
+        const StorageManager = {
+            getSessions() {
+                try { return JSON.parse(localStorage.getItem(STORAGE_KEY_SESSIONS) || '[]'); }
+                catch { return []; }
+            },
+            saveSessions(sessions) {
+                try { localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(sessions)); }
+                catch (e) { console.warn('FitForm: localStorage write failed', e); }
+            },
+            getPBs() {
+                try { return JSON.parse(localStorage.getItem(STORAGE_KEY_PBS) || '{}'); }
+                catch { return {}; }
+            },
+            savePBs(pbs) {
+                try { localStorage.setItem(STORAGE_KEY_PBS, JSON.stringify(pbs)); }
+                catch (e) { console.warn('FitForm: localStorage write failed', e); }
+            },
+            clearAll() {
+                localStorage.removeItem(STORAGE_KEY_SESSIONS);
+                localStorage.removeItem(STORAGE_KEY_PBS);
+            }
+        };
+
+        // Active session state
+        let currentSession = null;
+        let prevRepCount   = 0;
+
+        function getTodayStr() {
+            return new Date().toISOString().slice(0, 10);
+        }
+
+        function formatTimestamp(ts) {
+            const d    = new Date(ts);
+            const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const date = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+            return `${date}, ${time}`;
+        }
+
+        function getExerciseLabel(exercise) {
+            const labels = {
+                squat: 'Squat', pushup: 'Push-up', lunge: 'Lunge',
+                plank: 'Plank', bicep: 'Bicep Curl', burpee: 'Burpees', pullup: 'Pull-ups'
+            };
+            return labels[exercise] || exercise;
+        }
+
+        function getLiveRepCount() {
+            switch (selectedExercise) {
+                case 'squat':  return squatCounter.counter;
+                case 'pushup': return pushupCounter.counter;
+                case 'lunge':  return lungeLeftCounter.counter + lungeRightCounter.counter;
+                case 'bicep':  return bicepLeftCounter.counter + bicepRightCounter.counter;
+                case 'burpee': return burpeeRepCount;
+                case 'pullup': return pullupCounter.counter;
+                case 'plank':  return Math.round(plankElapsedSeconds);
+                default:       return 0;
+            }
+        }
+
+        function getLiveAccuracy() {
+            const total = correctFrames + incorrectFrames;
+            return total > 0 ? Math.round((correctFrames / total) * 100) : null;
+        }
+
+        // ----- Session lifecycle -----
+
+        function startSession() {
+            currentSession = {
+                id:        Date.now().toString(),
+                exercise:  selectedExercise,
+                reps:      0,
+                accuracy:  null,
+                timestamp: Date.now(),
+                date:      getTodayStr()
+            };
+            prevRepCount = 0;
+        }
+
+        function saveCurrentSession() {
+            if (!currentSession) return;
+            currentSession.reps     = getLiveRepCount();
+            currentSession.accuracy = getLiveAccuracy();
+
+            const sessions = StorageManager.getSessions();
+            const idx = sessions.findIndex(s => s.id === currentSession.id);
+            if (idx >= 0) {
+                sessions[idx] = { ...currentSession };
+            } else {
+                sessions.push({ ...currentSession });
+            }
+            if (sessions.length > MAX_SESSIONS) sessions.splice(0, sessions.length - MAX_SESSIONS);
+            StorageManager.saveSessions(sessions);
+            updatePersonalBests(currentSession);
+        }
+
+        function updatePersonalBests(session) {
+            const pbs = StorageManager.getPBs();
+            const ex  = session.exercise;
+            if (!pbs[ex]) pbs[ex] = { maxReps: 0, bestAccuracy: null, date: null };
+
+            let changed = false;
+            if (session.reps > pbs[ex].maxReps) {
+                pbs[ex].maxReps = session.reps;
+                pbs[ex].date    = session.date;
+                changed = true;
+            }
+            if (session.accuracy !== null &&
+                (pbs[ex].bestAccuracy === null || session.accuracy > pbs[ex].bestAccuracy)) {
+                pbs[ex].bestAccuracy = session.accuracy;
+                if (!changed) pbs[ex].date = session.date;
+                changed = true;
+            }
+            if (changed) StorageManager.savePBs(pbs);
+        }
+
+        function finalizeSession() {
+            if (!currentSession) return;
+            saveCurrentSession();
+            currentSession = null;
+            renderHistoryPanel();
+            renderPBBadge(selectedExercise);
+        }
+
+        // Called from the rep-detection hook in updateStats()
+        function onRepCompleted() {
+            saveCurrentSession();
+            renderHistoryPanel();
+            renderPBBadge(selectedExercise);
+        }
+
+        // ----- UI: PB Badge -----
+
+        function renderPBBadge(exercise) {
+            const badge = document.getElementById('pbBadge');
+            if (!badge) return;
+            const pbs   = StorageManager.getPBs();
+            const pb    = pbs[exercise];
+            const today = getTodayStr();
+
+            if (!pb || pb.maxReps === 0) {
+                badge.classList.remove('visible');
+                return;
+            }
+
+            const isTodayPB  = pb.date === today;
+            const label      = isTodayPB ? "Today's PB" : `All-Time PB (${pb.date})`;
+            const valueLabel = exercise === 'plank'
+                ? `${pb.maxReps}s hold`
+                : `${pb.maxReps} reps`;
+            const accPart    = (exercise !== 'plank' && pb.bestAccuracy !== null)
+                ? ` &middot; <strong>${pb.bestAccuracy}%</strong> accuracy`
+                : '';
+
+            badge.innerHTML = `&#127942; ${label}: <strong>${valueLabel}</strong>${accPart}`;
+            badge.classList.add('visible');
+        }
+
+        // ----- UI: History Panel -----
+
+        function renderHistoryPanel() {
+            const list = document.getElementById('historyList');
+            if (!list) return;
+
+            const sessions = StorageManager.getSessions();
+            const recent   = sessions.slice(-5).reverse();   // last 5, newest first
+
+            if (recent.length === 0) {
+                list.innerHTML = '<div class="history-empty"><i class="fas fa-dumbbell"></i><br>No sessions yet. Start training!</div>';
+                return;
+            }
+
+            const pbs = StorageManager.getPBs();
+            list.innerHTML = `<div class="history-grid">${
+                recent.map(s => {
+                    const pb        = pbs[s.exercise];
+                    const isRepPB   = pb && s.reps > 0 && s.reps === pb.maxReps;
+                    const pbTag     = isRepPB ? '<span class="history-pb-tag">PB</span>' : '';
+                    const isPlank   = s.exercise === 'plank';
+                    const repsLabel = isPlank ? 'Hold' : 'Reps';
+                    const repsText  = isPlank ? `${s.reps}s` : `${s.reps}`;
+                    const accText   = s.accuracy !== null ? `${s.accuracy}%` : '&#8212;';
+
+                    return `<div class="history-item">
+                        <div class="history-item-header">
+                            <span class="history-exercise-name">${getExerciseLabel(s.exercise)}${pbTag}</span>
+                            <span class="history-timestamp">${formatTimestamp(s.timestamp)}</span>
+                        </div>
+                        <div class="history-stats">
+                            <div>
+                                <span class="history-stat-label">${repsLabel}</span>
+                                <span class="history-stat-value">${repsText}</span>
+                            </div>
+                            <div>
+                                <span class="history-stat-label">Accuracy</span>
+                                <span class="history-stat-value">${accText}</span>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('')
+            }</div>`;
+        }
+
+        function toggleHistoryPanel() {
+            document.getElementById('historyBody').classList.toggle('open');
+            document.getElementById('historyChevron').classList.toggle('open');
+        }
+
+        function clearHistory() {
+            if (!confirm('Delete all session history and personal bests? This cannot be undone.')) return;
+            StorageManager.clearAll();
+            renderHistoryPanel();
+            renderPBBadge(selectedExercise);
+        }
+
+        // ===== END PERSISTENCE LAYER =====
 
         startBtn.addEventListener('click', async () => {
             if (!poseDetector) {
