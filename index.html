@@ -1311,6 +1311,43 @@
     </div>
 
     <script>
+        const STORAGE_AVAILABLE = (() => {
+            try { localStorage.setItem('test', '1'); localStorage.removeItem('test'); return true; }
+            catch(e) { return false; }
+        })();
+
+        const STORAGE_KEY_SESSIONS = 'fitform_sessions';
+        const STORAGE_KEY_PBS      = 'fitform_pbs';
+        const MAX_SESSIONS = 50;
+
+        const StorageManager = {
+            getSessions() {
+                if (!STORAGE_AVAILABLE) return [];
+                try { return JSON.parse(localStorage.getItem(STORAGE_KEY_SESSIONS) || '[]'); }
+                catch { return []; }
+            },
+            saveSessions(sessions) {
+                if (!STORAGE_AVAILABLE) return;
+                try { localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(sessions)); }
+                catch (e) { console.warn('FitForm: localStorage write failed', e); }
+            },
+            getPBs() {
+                if (!STORAGE_AVAILABLE) return {};
+                try { return JSON.parse(localStorage.getItem(STORAGE_KEY_PBS) || '{}'); }
+                catch { return {}; }
+            },
+            savePBs(pbs) {
+                if (!STORAGE_AVAILABLE) return;
+                try { localStorage.setItem(STORAGE_KEY_PBS, JSON.stringify(pbs)); }
+                catch (e) { console.warn('FitForm: localStorage write failed', e); }
+            },
+            clearAll() {
+                if (!STORAGE_AVAILABLE) return;
+                try { localStorage.removeItem(STORAGE_KEY_SESSIONS); } catch(e) {}
+                try { localStorage.removeItem(STORAGE_KEY_PBS); } catch(e) {}
+            }
+        };
+
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
@@ -2225,11 +2262,7 @@
             });
         }
 
-        let _modelLoading = false;
         async function loadModels() {
-            if (_modelLoading) return !!poseDetector;
-            _modelLoading = true;
-            startBtn.disabled = true;
             try {
                 updateStatus('Loading AI models... <div class="loading-spinner"></div>', 'loading');
                 await tf.ready();
@@ -2243,18 +2276,20 @@
                 );
 
                 updateStatus('AI loaded! Ready to dominate your workout!', 'ready');
-                startBtn.disabled = false;
                 return true;
             } catch (error) {
                 updateStatus('Error loading AI: ' + error.message, 'error');
-                startBtn.disabled = false;
                 return false;
-            } finally {
-                _modelLoading = false;
             }
         }
 
         async function startWebcam() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                updateStatus('Camera not supported. Open this page in Chrome or Firefox.', 'error');
+                startBtn.disabled = false;
+                return;
+            }
+            startBtn.disabled = true;
             try {
                 stream = await navigator.mediaDevices.getUserMedia({
                     video: { width: { ideal: 640 }, height: { ideal: 480 } },
@@ -2262,19 +2297,27 @@
                 });
                 video.srcObject = stream;
 
-                video.onloadedmetadata = async () => {
+                video.addEventListener('loadedmetadata', async () => {
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
-                    try { await video.play(); } catch (e) { console.warn('video.play():', e); }
-                    startBtn.disabled = true;
+                    try { await video.play(); } catch (e) {}
+                    if (!poseDetector) {
+                        const loaded = await loadModels();
+                        if (!loaded) {
+                            stream.getTracks().forEach(track => track.stop());
+                            startBtn.disabled = false;
+                            stopBtn.disabled = true;
+                            return;
+                        }
+                    }
                     stopBtn.disabled = false;
                     isRunning = true;
                     startSession();
                     updateStatus('Training mode activated! Show me what you got!', 'ready');
                     detectFrame();
-                };
+                }, { once: true });
             } catch (error) {
-                updateStatus('Camera error: ' + error.message + '. Please allow camera access and try again.', 'error');
+                updateStatus('Camera error: ' + error.message, 'error');
                 startBtn.disabled = false;
             }
         }
@@ -2344,33 +2387,6 @@
         }
 
         // ===== SESSION PERSISTENCE LAYER =====
-
-        const STORAGE_KEY_SESSIONS = 'fitform_sessions';
-        const STORAGE_KEY_PBS      = 'fitform_pbs';
-        const MAX_SESSIONS = 50;
-
-        const StorageManager = {
-            getSessions() {
-                try { return JSON.parse(localStorage.getItem(STORAGE_KEY_SESSIONS) || '[]'); }
-                catch { return []; }
-            },
-            saveSessions(sessions) {
-                try { localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(sessions)); }
-                catch (e) { console.warn('FitForm: localStorage write failed', e); }
-            },
-            getPBs() {
-                try { return JSON.parse(localStorage.getItem(STORAGE_KEY_PBS) || '{}'); }
-                catch { return {}; }
-            },
-            savePBs(pbs) {
-                try { localStorage.setItem(STORAGE_KEY_PBS, JSON.stringify(pbs)); }
-                catch (e) { console.warn('FitForm: localStorage write failed', e); }
-            },
-            clearAll() {
-                localStorage.removeItem(STORAGE_KEY_SESSIONS);
-                localStorage.removeItem(STORAGE_KEY_PBS);
-            }
-        };
 
         // Active session state
         let currentSession = null;
@@ -2565,11 +2581,7 @@
 
         // ===== END PERSISTENCE LAYER =====
 
-        startBtn.addEventListener('click', async () => {
-            if (!poseDetector) {
-                const loaded = await loadModels();
-                if (!loaded) return;
-            }
+        startBtn.addEventListener('click', () => {
             startWebcam();
         });
 
