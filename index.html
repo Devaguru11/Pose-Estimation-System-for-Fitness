@@ -1701,9 +1701,7 @@
 
         // Calculate angle between three points 
         function calculateAngle(a, b, c) {
-            // Note: The JS implementation uses normalized keypoint coordinates from the detector
-            // The Python numpy logic is replaced here with Math.atan2
-            const radians = Math.atan2(c.y - b.y, c.x - c.x) - Math.atan2(a.y - b.y, a.x - a.x);
+            const radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
             let angle = Math.abs(radians * 180.0 / Math.PI);
             if (angle > 180.0) {
                 angle = 360 - angle;
@@ -2227,24 +2225,32 @@
             });
         }
 
+        let _modelLoading = false;
         async function loadModels() {
+            if (_modelLoading) return !!poseDetector;
+            _modelLoading = true;
+            startBtn.disabled = true;
             try {
                 updateStatus('Loading AI models... <div class="loading-spinner"></div>', 'loading');
                 await tf.ready();
-                
+
                 const detectorConfig = {
                     modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING
                 };
                 poseDetector = await poseDetection.createDetector(
-                    poseDetection.SupportedModels.MoveNet, 
+                    poseDetection.SupportedModels.MoveNet,
                     detectorConfig
                 );
 
                 updateStatus('AI loaded! Ready to dominate your workout!', 'ready');
+                startBtn.disabled = false;
                 return true;
             } catch (error) {
                 updateStatus('Error loading AI: ' + error.message, 'error');
+                startBtn.disabled = false;
                 return false;
+            } finally {
+                _modelLoading = false;
             }
         }
 
@@ -2255,10 +2261,11 @@
                     audio: false
                 });
                 video.srcObject = stream;
-                
-                video.onloadedmetadata = () => {
+
+                video.onloadedmetadata = async () => {
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
+                    try { await video.play(); } catch (e) { console.warn('video.play():', e); }
                     startBtn.disabled = true;
                     stopBtn.disabled = false;
                     isRunning = true;
@@ -2267,7 +2274,8 @@
                     detectFrame();
                 };
             } catch (error) {
-                updateStatus('Camera access needed to unleash your potential!', 'error');
+                updateStatus('Camera error: ' + error.message + '. Please allow camera access and try again.', 'error');
+                startBtn.disabled = false;
             }
         }
 
