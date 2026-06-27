@@ -1311,6 +1311,43 @@
     </div>
 
     <script>
+        const STORAGE_AVAILABLE = (() => {
+            try { localStorage.setItem('test', '1'); localStorage.removeItem('test'); return true; }
+            catch(e) { return false; }
+        })();
+
+        const STORAGE_KEY_SESSIONS = 'fitform_sessions';
+        const STORAGE_KEY_PBS      = 'fitform_pbs';
+        const MAX_SESSIONS = 50;
+
+        const StorageManager = {
+            getSessions() {
+                if (!STORAGE_AVAILABLE) return [];
+                try { return JSON.parse(localStorage.getItem(STORAGE_KEY_SESSIONS) || '[]'); }
+                catch { return []; }
+            },
+            saveSessions(sessions) {
+                if (!STORAGE_AVAILABLE) return;
+                try { localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(sessions)); }
+                catch (e) { console.warn('FitForm: localStorage write failed', e); }
+            },
+            getPBs() {
+                if (!STORAGE_AVAILABLE) return {};
+                try { return JSON.parse(localStorage.getItem(STORAGE_KEY_PBS) || '{}'); }
+                catch { return {}; }
+            },
+            savePBs(pbs) {
+                if (!STORAGE_AVAILABLE) return;
+                try { localStorage.setItem(STORAGE_KEY_PBS, JSON.stringify(pbs)); }
+                catch (e) { console.warn('FitForm: localStorage write failed', e); }
+            },
+            clearAll() {
+                if (!STORAGE_AVAILABLE) return;
+                try { localStorage.removeItem(STORAGE_KEY_SESSIONS); } catch(e) {}
+                try { localStorage.removeItem(STORAGE_KEY_PBS); } catch(e) {}
+            }
+        };
+
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
@@ -1701,9 +1738,7 @@
 
         // Calculate angle between three points 
         function calculateAngle(a, b, c) {
-            // Note: The JS implementation uses normalized keypoint coordinates from the detector
-            // The Python numpy logic is replaced here with Math.atan2
-            const radians = Math.atan2(c.y - b.y, c.x - c.x) - Math.atan2(a.y - b.y, a.x - a.x);
+            const radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
             let angle = Math.abs(radians * 180.0 / Math.PI);
             if (angle > 180.0) {
                 angle = 360 - angle;
@@ -2231,12 +2266,12 @@
             try {
                 updateStatus('Loading AI models... <div class="loading-spinner"></div>', 'loading');
                 await tf.ready();
-                
+
                 const detectorConfig = {
                     modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING
                 };
                 poseDetector = await poseDetection.createDetector(
-                    poseDetection.SupportedModels.MoveNet, 
+                    poseDetection.SupportedModels.MoveNet,
                     detectorConfig
                 );
 
@@ -2249,25 +2284,41 @@
         }
 
         async function startWebcam() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                updateStatus('Camera not supported. Open this page in Chrome or Firefox.', 'error');
+                startBtn.disabled = false;
+                return;
+            }
+            startBtn.disabled = true;
             try {
                 stream = await navigator.mediaDevices.getUserMedia({
                     video: { width: { ideal: 640 }, height: { ideal: 480 } },
                     audio: false
                 });
                 video.srcObject = stream;
-                
-                video.onloadedmetadata = () => {
+
+                video.addEventListener('loadedmetadata', async () => {
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
-                    startBtn.disabled = true;
+                    try { await video.play(); } catch (e) {}
+                    if (!poseDetector) {
+                        const loaded = await loadModels();
+                        if (!loaded) {
+                            stream.getTracks().forEach(track => track.stop());
+                            startBtn.disabled = false;
+                            stopBtn.disabled = true;
+                            return;
+                        }
+                    }
                     stopBtn.disabled = false;
                     isRunning = true;
                     startSession();
                     updateStatus('Training mode activated! Show me what you got!', 'ready');
                     detectFrame();
-                };
+                }, { once: true });
             } catch (error) {
-                updateStatus('Camera access needed to unleash your potential!', 'error');
+                updateStatus('Camera error: ' + error.message, 'error');
+                startBtn.disabled = false;
             }
         }
 
@@ -2336,33 +2387,6 @@
         }
 
         // ===== SESSION PERSISTENCE LAYER =====
-
-        const STORAGE_KEY_SESSIONS = 'fitform_sessions';
-        const STORAGE_KEY_PBS      = 'fitform_pbs';
-        const MAX_SESSIONS = 50;
-
-        const StorageManager = {
-            getSessions() {
-                try { return JSON.parse(localStorage.getItem(STORAGE_KEY_SESSIONS) || '[]'); }
-                catch { return []; }
-            },
-            saveSessions(sessions) {
-                try { localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(sessions)); }
-                catch (e) { console.warn('FitForm: localStorage write failed', e); }
-            },
-            getPBs() {
-                try { return JSON.parse(localStorage.getItem(STORAGE_KEY_PBS) || '{}'); }
-                catch { return {}; }
-            },
-            savePBs(pbs) {
-                try { localStorage.setItem(STORAGE_KEY_PBS, JSON.stringify(pbs)); }
-                catch (e) { console.warn('FitForm: localStorage write failed', e); }
-            },
-            clearAll() {
-                localStorage.removeItem(STORAGE_KEY_SESSIONS);
-                localStorage.removeItem(STORAGE_KEY_PBS);
-            }
-        };
 
         // Active session state
         let currentSession = null;
@@ -2557,11 +2581,7 @@
 
         // ===== END PERSISTENCE LAYER =====
 
-        startBtn.addEventListener('click', async () => {
-            if (!poseDetector) {
-                const loaded = await loadModels();
-                if (!loaded) return;
-            }
+        startBtn.addEventListener('click', () => {
             startWebcam();
         });
 
